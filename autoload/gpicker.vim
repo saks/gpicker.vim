@@ -45,47 +45,15 @@
 "                 ":GPickLocate"
 "
 
-command GPickFile :call <SID>GPickFile(g:gpicker_edit_cmd, resolve("."), "guess")
-command GPickFileDefault :call <SID>GPickFile(g:gpicker_edit_cmd, resolve("."), "default")
-command GPickFileFromHere :call <SID>GPickFile(g:gpicker_edit_cmd, expand("%:h"), "default")
-command GPickLocate :call <SID>GPickFile(g:gpicker_edit_cmd, g:gpicker_mlocate_db, "mlocate")
-function! s:GPickFile(cmd, path, type)
-  if empty(a:path)
-    let l:path = "."
-  else
-    let l:path = a:path
-  endif
-  " select file via gpicker
-  if a:type == "mlocate"
-    let l:filename = system('gpicker --eat-prefix="" -t mlocate ' . shellescape(l:path))
-  else
-    let l:filename = l:path . "/" . system('gpicker -t ' . a:type . " " . shellescape(l:path))
-  endif
-  if filereadable(l:filename)
-    " open selected file
-    execute a:cmd . " " . escape(resolve(expand(l:filename)), ' ')
-  endif
-endfunction
+" Exit quickly when already loaded.
+if exists("g:loaded_gpicker") || executable("gpicker") == 0
+  finish
+endif
 
-command GPickBuffer :call <SID>GPickBuffer()
-function! s:GPickBuffer()
-  " grab list of buffers
-  redir => l:ls_output
-  silent execute 'ls'
-  redir END
+if exists("g:gpicker_mlocate_db") == 0
+  let g:gpicker_mlocate_db = "/var/lib/mlocate/mlocate.db"
+endif
 
-  " remove empty line from beginning and trailing line info
-  let l:items = strpart(substitute(l:ls_output, '\(\d\+\)\s\+\([u%#ah=+x-]\+\)\s\+"\(.\{-}\)"\s\{-}line\s\+\d\+', '\3   \2 \1', 'g'), 1)
-  " get selection via gpicker
-  let l:selected  = system('gpicker --name-separator \\n -', items)
-  " open buffer
-  execute "buffer " . substitute(l:selected, '[u%#ah=+x-]\+\s\+\d\+$', '', '')
-endfunction
-
-nmap <silent> <leader>mm :GPickLocate<cr>
-nmap <silent> <leader>mg :GPickFile<cr>
-nmap <silent> <leader>mf :GPickFileDefault<cr>
-nmap <silent> <leader>mr :GPickFileFromHere<cr>
-nmap <silent> <leader>mb :GPickBuffer<cr>
-
-let g:loaded_gpicker = 1
+if exists("g:gpicker_file_cmd") == 0
+  let g:gpicker_file_cmd = "edit"
+endif
