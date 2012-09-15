@@ -53,7 +53,3 @@ endif
 if exists("g:gpicker_mlocate_db") == 0
   let g:gpicker_mlocate_db = "/var/lib/mlocate/mlocate.db"
 endif
-
-if exists("g:gpicker_file_cmd") == 0
-  let g:gpicker_file_cmd = "edit"
-endif

@@ -45,11 +45,11 @@
 "                 ":GPickLocate"
 "
 
-command GPickFile :call <SID>GPickFile(g:gpicker_edit_cmd, resolve("."), "guess")
-command GPickFileDefault :call <SID>GPickFile(g:gpicker_edit_cmd, resolve("."), "default")
-command GPickFileFromHere :call <SID>GPickFile(g:gpicker_edit_cmd, expand("%:h"), "default")
-command GPickLocate :call <SID>GPickFile(g:gpicker_edit_cmd, g:gpicker_mlocate_db, "mlocate")
-function! s:GPickFile(cmd, path, type)
+command GPickFile :call <SID>GPickFile(resolve("."), "guess")
+command GPickFileDefault :call <SID>GPickFile(resolve("."), "default")
+command GPickFileFromHere :call <SID>GPickFile(expand("%:h"), "default")
+command GPickLocate :call <SID>GPickFile(g:gpicker_mlocate_db, "mlocate")
+function! s:GPickFile(path, type)
   if empty(a:path)
     let l:path = "."
   else
@@ -63,7 +63,7 @@ function! s:GPickFile(cmd, path, type)
   endif
   if filereadable(l:filename)
     " open selected file
-    execute a:cmd . " " . escape(resolve(expand(l:filename)), ' ')
+    execute s:DetermineOpenFileCmd() . " " . escape(resolve(expand(l:filename)), ' ')
   endif
 endfunction
 
@@ -80,6 +80,23 @@ function! s:GPickBuffer()
   let l:selected  = system('gpicker --name-separator \\n -', items)
   " open buffer
   execute "buffer " . substitute(l:selected, '[u%#ah=+x-]\+\s\+\d\+$', '', '')
+endfunction
+
+function! s:DetermineOpenFileCmd()
+  if !exists('g:gpicker_open_file_in_tabs')
+    return 'edit'
+  endif
+
+  let filename              = expand('%')
+  let file_is_not_opened    = 0 == strlen(filename)
+  let no_text_in_the_buffer = 0 == search('.')
+  let cmd_open_file         = 'tabe'
+
+  if file_is_not_opened && no_text_in_the_buffer
+    let cmd_open_file = 'edit'
+  endif
+
+  return cmd_open_file
 endfunction
 
 nmap <silent> <leader>mm :GPickLocate<cr>
