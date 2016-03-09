@@ -45,10 +45,10 @@
 "                 ":GPickLocate"
 "
 
-command GPickFile :call <SID>GPickFile(resolve("."), "guess")
-command GPickFileDefault :call <SID>GPickFile(resolve("."), "default")
-command GPickFileFromHere :call <SID>GPickFile(expand("%:h"), "default")
-command GPickLocate :call <SID>GPickFile(g:gpicker_mlocate_db, "mlocate")
+command! GPickFile :call <SID>GPickFile(resolve("."), "guess")
+command! GPickFileDefault :call <SID>GPickFile(resolve("."), "default")
+command! GPickFileFromHere :call <SID>GPickFile(expand("%:h"), "default")
+command! GPickLocate :call <SID>GPickFile(g:gpicker_mlocate_db, "mlocate")
 function! s:GPickFile(path, type)
   if empty(a:path)
     let l:path = "."
@@ -67,7 +67,7 @@ function! s:GPickFile(path, type)
   endif
 endfunction
 
-command GPickBuffer :call <SID>GPickBuffer()
+command! GPickBuffer :call <SID>GPickBuffer()
 function! s:GPickBuffer()
   " grab list of buffers
   redir => l:ls_output
